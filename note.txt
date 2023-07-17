@@ -1,0 +1,2 @@
+激活环境
+source /Users/danyow/Envs/torch_env/bin/activate
