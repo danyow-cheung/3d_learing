@@ -55,3 +55,22 @@
 等會學習怎麼使用pytorch3d來加載和保存ply files文件。
 > load_save_ply.py
 > tips:pytorch3d 和torch有版本對應，
+
+### Obj files 
+也有二進制格式和ASCII格式
+
+
+暫時暫停，等bug修復
+## 3d coordination systems
+坐標系統
+<img src = '../imgs/NDC_coordination.png'>
+標準化設備坐標 (NDC) 限制了相機可以渲染的體積。 NDC 空間中的 x 坐標值範圍為 -1 到 +1，y 坐標值也是如此。 z 坐標值的範圍從 znear 到 zfar，其中 znear 是最近深度，zfar 是最遠深度。 相機不會渲染此 znear 到 zfar 範圍之外的任何對象。
+最後，屏幕坐標係是根據渲染圖像在屏幕上的顯示方式來定義的。 坐標系包含作為像素的列的x坐標、作為像素的行的y坐標以及對應於對象的深度的z坐標。
+為了在 2D 屏幕上正確渲染 3D 對象，我們需要在這些坐標系之間切換。 幸運的是，這些轉換可以通過使用 PyTorch3D 相機模型輕鬆執行。 在討論相機模型之後，我們將更詳細地討論坐標轉換。
+
+## camera model 
+在 PyTorch3D 中，有兩種主要的相機模型，由 OrthographicCameras 類定義的**正交相機**和由 PerspectiveCameras 類定義的**透視相機**模型。 下圖展示了兩種相機型號之間的差異。
+<img src = '../imgs/two_camera_model.png'>
+
+## Coding for camera models and coordination systems 
+> model_coordination.py
