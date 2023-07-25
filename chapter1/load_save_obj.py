@@ -1,3 +1,5 @@
+import torch 
+print(torch.__version__)
 import open3d
 from pytorch3d.io import load_obj
 

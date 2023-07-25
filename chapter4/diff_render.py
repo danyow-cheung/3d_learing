@@ -97,5 +97,49 @@ class Model(nn.Module):
         )
 
     def forward(self):
-        R = look_at_rotation(self.camera_position[None,:],device=self.device)
-        
+        R = look_at_rotation(self.camera_position[None,:],device=self.device) # (1,3,3)
+        T = -torch.bmm(R.transpose(1,2),self.camera_position[None,:,None])[:,:,0]#(1,3)
+
+        image = self.renderer(meshes_world =self.meshes.clone(),R=R,T=T)
+        loss = torch.sum((image[...,3]-self.image_ref**2))
+        return loss ,image 
+    '''
+    現在，我們已經定義了 Model 類。 然後我們可以創建該類的實例並定義優化器。 
+    在運行任何優化之前，我們想要渲染圖像以顯示起始相機位置。
+    '''
+
+model = Model(meshes=teapot_mesh,renderer=silhouette_renderer,image_ref=image_ref).to(device)
+optimizer = torch.optim.Adam(model.parameters(),lr=0.05)
+
+_,image_init = model()
+plt.figure(figsize=(10, 10))
+plt.imshow(image_init.detach().squeeze().cpu().numpy()[..., 3])
+plt.grid(False)
+plt.title("Starting Silhouette")
+plt.close()
+
+'''
+使用優化迭代
+'''
+for i in range(0,200):
+    if i%10==0:
+        print('i=',i)
+    optimizer.zero_grad()
+    loss,_ = model()
+    loss.backward()
+    optimizer.step()
+
+    if loss.item()<500:
+        break
+    R = look_at_rotation(model.camera_position[None,:],devide=model.device)
+    T = -torch.bmm(R.transpose(1,2),model.camera_position[None,:,None])[:,:,0]
+    image = phong_renderer(meshes_world = model.meshes.clone(),R=R,T=T)
+    image = image[0,...,:3].detach().squeeze().cpu().numpy()
+    image = img_as_ubyte(image)
+    plt.figure()
+    plt.imshow(image[..., :3])
+    plt.title("iter: %d, loss: %0.2f" % (i, loss.data))
+    plt.axis("off")
+    plt.savefig(os.path.join(output_dir, 'fitting_' +str(i) + '.png'))
+    plt.close()
+    

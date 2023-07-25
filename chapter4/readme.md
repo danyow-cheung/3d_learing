@@ -22,3 +22,7 @@
 the problem is object post estimation from one single observed image 
 > diff_render.py
 ## how it is work 
+
+### An example of object pose estimation for both silhouette fitting and texture fitting 
+在前面的例子中，我們通過輪廓擬合來估計物體姿態。 在本節中，我們將介紹使用輪廓擬合和紋理擬合進行物體姿態估計的另一個示例。 在3D計算機視覺中，我們通常使用紋理來表示顏色。 因此，在這個例子中，我們將使用可微分渲染根據相機位置來渲染RGB圖像並優化相機位置。 代碼在 diff_render_texture.py 中：
+> diff_render_texture.py
