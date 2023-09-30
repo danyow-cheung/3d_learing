@@ -28,6 +28,38 @@ viewed from the viewing angle (θ, ∅).
 其輸出為 (x, y, z) 處的體積密度 σ 以及從視角 (θ, ∅) 觀看時 (x, y, z) 點的發射顏色 (r, g, b)。
 
 ## Training a NeRF model 
+> chapter6_trainNeRF.ipynb 
+
 
 ## Understanding the NeRF model architecture 
+神經網路採用空間位置 (x, y, z) 的諧波(harmonic)嵌入和諧波嵌入 (θ, ∅) 作為其輸入並輸出預測密度 σ 和預測顏色 (r, g, b)。
+
+每个输入点都是一个 5 维向量。 发现直接在这个上训练模型
+当表示颜色和几何形状的高频变化时，输入表现不佳。 这
+是因为众所周知，神经网络偏向于学习低频函数。
+解决这个问题的一个好方法是将输入空间映射到更高维的空间并使用它进行训练。 该映射函数是一组具有固定但唯一频率的正弦函数：
+$$
+\gamma(p) = (sin(2^0 \pi p),cos(2^0 \pi p),...sin(2^{L-1} \pi p ),cos(2^{L-1} \pi p ))
+$$
+该函数应用于输入向量的每个分量：
+> chapter6_NeRF_architute.py
+```
+import torch 
+class NeuralRadianceField(torch.nn.Module):
+    def __init__(self,n_harmonic_functions=60,n_hidden_neurons=256) -> None:
+        super().__init__()
+        self.harmonic_embedding = HarmonicEmbedding(n_harmonic_functions)
+
+```
+神经网络由 MLP 主干组成。 它采用位置 (x, y, z) 的嵌入
+作为其输入。 这是一个全连接网络，使用的激活函数是softplus。
+softplus 函数是 ReLU 激活函数的平滑版本。 输出
+主干的向量是一个大小为 n_hidden_neurons 的向量：
+```
+embedding_dim = n_harmonic_functions*2*3 
+self.mlp = torch.nn.Sequential(
+    torch.nn.Linear(embedding_dim,n_hidden_neurons),
+    
+)
+```
 ## Understanding volume rendering with radiance fields
