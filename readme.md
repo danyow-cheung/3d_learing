@@ -19,3 +19,17 @@
 3. Performing End-to-End View Synthesis with SynSin
 4. Mesh R-CNN
    
+
+在colab敲代碼需要的pytorch3d安裝方法
+```
+import sys
+import torch
+pyt_version_str=torch.__version__.split("+")[0].replace(".", "")
+version_str="".join([
+    f"py3{sys.version_info.minor}_cu",
+    torch.version.cuda.replace(".",""),
+    f"_pyt{pyt_version_str}"
+])
+!pip install fvcore iopath
+!pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/{version_str}/download.html
+```
