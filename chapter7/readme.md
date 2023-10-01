@@ -16,19 +16,59 @@ GAN 可以經過訓練，從任何資料分佈中產生外觀相似的影像。 
 在下一節中，我們將查看一個模型的高級概述，該模型可以產生 2D 影像，並隱式了解底層場景的 3D 性質。
 
 ## Introducing compositional 3D-aware image synthesis 
+目標是可以控制的圖片生成，包括圖片中的object數量，位置，姿勢，大小等。
+
+
+GIRAFFE模型可以達到上述的要求，現在，讓我們看看 GIRAFFE 模型如何在其他既定想法的基礎上建構來實現這一目標。
+- **Learning 3D representation**  這種類似 NeRF 的模型用於強制產生的影像的 3D 一致性
+- **Compositional operator** 一種無參數組合運算符，用於將多個物件的特徵欄位組合成單一特徵欄位。 這將有助於創建具有所需的圖像
+其中的對象數量
+- **Neural rendering model** 這使用組合的特徵欄位來創建圖像。 這是一個 2D 卷積神經網路 (CNN)，可對特徵場進行上取樣以建立更高維度的輸出影像。
+- **GAN** GIRAFFE模型使用GAN模型架構來產生新場景。 前面的三個組件構成了生成器。 該模型還包含一個鑑別器神經網絡，用於區分假圖像和真實圖像。 由於 NeRF 模型和合成算子的存在，該模型將使影像生成過程具有合成和 3D 感知能力。
+
+
+生成影像分為兩步驟：
+1. 給定相機視角以及有關要渲染的物件的一些信息，對特徵欄位進行體積渲染。 該物件資訊是一些抽象向量，您將在以後的章節中了解它們。
+2. 使用神經渲染模型將特徵場映射到高解析度影像。
+
+
+------
+生成器模型使用所選的相機姿勢和 N，物件的數量（包括背景），以及相應數量的形狀和外觀代碼以及仿射
+首先合成特徵字段的轉換。 個體對應的個體特徵字段然後將物件組合在一起以形成聚合特徵欄位。 然後體積渲染
+使用體積渲染的標準原理沿著射線繪製特徵場。 
+
+在此之後，神經渲染網路將該特徵欄位轉換為影像空間中的像素值。
+在本節中，我們對 GIRAFFE 模型有了非常廣泛的了解。 現在讓我們放大
+它的各個組成部分以獲得更深入的了解。
 
 ## Generating feature fields 
+場景生成過程的第一步是產生特徵欄位。 這類似於在 NeRF 模型中產生 RGB 影像。
+然而，特徵字段可以是圖像的任何抽象概念。 它是圖像矩陣的推廣。 這裡的差異在於，GIRAFFE 模型不是產生三通道 RGB 影像，而是產生更抽象的影像，我們稱之為維度為 **HV 的特徵域**。
+
+對於本節，我們假設我們有一個訓練有素的 GIRAFFE 模型。 它已經在一些我們現在不會考慮的預定義資料集上進行了訓練。 為了產生新圖像，我們需要做以下三件事：
+1. 指定相機姿勢：這定義了相機的視角。 作為預處理步驟，我們使用此相機姿勢將光線投射到場景中並產生沿與採樣點 (xij)。 我們將把許多這樣的光線投射到場景中。
+2. 取樣 2N 個潛在程式碼：我們對與我們希望在渲染的輸出影像中看到的每個物件相對應的兩個潛在程式碼進行取樣。 一個潛在代碼對應於物體的形狀，另一個潛在代碼對應於其外觀。 這些代碼是從標準常態分佈中採樣的。
+3. 指定N個仿射變換：這對應於場景中物件的姿勢。
+
 
 ## Mapping features fields to images 
+在產生尺寸為 $$ H_{v} , W_{v} , M_{f}$$ 的特徵欄位後，我們需要將其對應到尺寸為 $$H * W * 3$$ 的圖像。
+
+GIRAFFE 模型使用兩階段方法，因為消融分析顯示它比使用單階段方法直接產生影像更好
+
+映射操作是一個可以透過資料學習的參數函數，並且使用 2D CNN 最適合此任務，因為它是影像域中的函數。
+可以用以下的數字公式進行定義
+$$
+\pi_{\theta}^{neural}:R^{H_{v} \times W_{v} \times M_{f} } \longrightarrow  R^{H \times W \times 3}
+$$
 
 ## exploring controllable scene generation
-### Exploring contraollable car generation 
+https://github.com/autonomousvision/giraffe
 
-### Exploring controllable face generation 
+~~## Exploring contraollable car generation~~
+~~### Exploring controllable face generation~~
+~~## Training the GIRAFFE model~~
+~~### Frechet Inception Distance~~
+~~### Training the model~~ 
 
-## Training the GIRAFFE model 
-
-### Frechet Inception Distance 
-
-### Training the model 
-
+上述屬於探索了一下giraffe模型
