@@ -76,6 +76,9 @@ $$
 ## Exploring SMPLify
 > 20231002 有趣可以詳細看看，學習
 
-### Runing the code 
+參考的是這篇論文的實現**Keep it SMPL: Automatic Estimation  of 3D Human Pose and Shape from a Single Image**
 
-### Exploring the code 
+
+### Runing the code 
+> run_fit3d.py 
+
