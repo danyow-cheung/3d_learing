@@ -45,11 +45,36 @@ $$
 線性混合蒙皮模型中的情況並非如此。
 
 ## Using the SMPL model 
-
+> render_smpl.py
+安裝opendr
+```
+export DISABLE_BCOLZ_AVX2=true
+pip install opendr-toolkit-engine
+pip install opendr-toolkit
+```
 ## Estimating 3D human pose and shape using SMPLify
+從 2D 影像估計 3D 形狀並不總是沒有錯誤。 這是一個具有挑戰性的問題，因為人體、關節、遮蔽、服裝、照明的複雜性，以及從 2D 推斷 3D 時固有的模糊性（因為多個 3D 姿勢在投影時可以具有相同的 2D 姿勢）。
+
+
+馬克斯普朗克研究所的研究人員發明了實現這一目標的最佳方法之一。
+智慧系統（SMPL 模型的發明者）、微軟、馬裡蘭大學和蒂賓根大學。 這種方法稱為 SMPLify。 讓我們更詳細地探討這種方法。
+SMPLify 包含兩個步驟
+1. 使用已建立的姿勢偵測模型（例如 OpenPose 或 DeepCut）自動偵測 2D 關節。 任何 2D 關節偵測器都可以代替它們使用，只要它們預測相同的關節即可。
+2. 使用 SMPL 模型產生 3D 形狀。 直接優化SMPL的參數,使SMPL模型的模型關節投影到前一階段預測的二維關節上
+
+我們知道 SMPL 僅捕捉關節的形狀。 因此，透過 SMPL 模型，我們可以僅從關節捕獲有關身體形狀的信息。 在SMPL模型中，體形參數以β來表徵。 它們是 PCA 形狀模型中主成分的係數。
+
+此姿勢透過運動樹中 23 個關節的相對旋轉和 theta 進行參數化。 我們需要擬合這些參數 β 和 theta，以便最小化目標函數。
+
 ### Defining the optimization objective functino
+任何目標函數都必須捕捉我們的意圖，以盡量減少某些錯誤的概念。 此誤差計算越準確，優化步驟的輸出就越準確。 我們將首先查看整個目標函數，然後查看該函數的每個單獨組件並解釋為什麼每個組件都是必要的：
+$$
+E_{j}(\beta,\theta,K,J_{est}) +  \lambda_{\theta} E_{\theta}(\theta) + \lambda_{\alpha}E_{\alpha}(\theta) + \lambda_{sp}E_{sp}(\theta;\beta) + \lambda_{\beta}E_{\beta}(\beta)
+$$
+我們希望透過最佳化參數 β 和 Ɵ 來最小化該目標函數。 它由四個項目和相應的係數 λƟ、λa、λsp 和 λβ 組成，它們是優化過程的超參數。 
 
 ## Exploring SMPLify
+> 20231002 有趣可以詳細看看，學習
 
 ### Runing the code 
 
