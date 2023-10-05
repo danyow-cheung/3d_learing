@@ -33,3 +33,10 @@ version_str="".join([
 !pip install fvcore iopath
 !pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/{version_str}/download.html
 ```
+
+# 總結
+有意義的開源項目
+- [Mesh-RCNN](https://github.com/facebookresearch/meshrcnn.git)
+- [giraffe](https://github.com/autonomousvision/giraffe)
+- [synsin](https://github.com/facebookresearch/synsin.git)
+- 
